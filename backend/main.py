@@ -2,8 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List
-import models
-import database
+from . import models, database
 
 # This line creates the tables in Supabase automatically if they don't exist
 models.Base.metadata.create_all(bind=database.engine)
