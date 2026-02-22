@@ -1,57 +1,53 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
 from typing import List
-from dotenv import load_dotenv
-import os
+import crud, models, schemas
+from database import SessionLocal, engine, Base
 
-load_dotenv()  # Load .env
+models.Base.metadata.create_all(bind=engine)
 
-# Database imports (create these files next)
-from database import engine, get_db
-from models import Base, Expense
+app = FastAPI(title="ExpenseTracker API")
 
-# Create tables (runs once)
-Base.metadata.create_all(bind=engine)
+security = HTTPBasic()
 
-app = FastAPI(title="Expense Tracker API")
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-# Pydantic Schemas
-class ExpenseCreate(BaseModel):
-    title: str
-    amount: float
-    category: str
+@app.post("/users/", response_model=schemas.User)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return crud.create_user(db=db, user=user)
 
-class ExpenseResponse(ExpenseCreate):
-    id: int
-    
-    class Config:
-        from_attributes = True
+@app.post("/expenses/", response_model=schemas.Expense)
+def create_expense(
+    expense: schemas.ExpenseCreate,
+    credentials: HTTPBasicCredentials = Depends(security),
+    db: Session = Depends(get_db)
+):
+    user = crud.get_user_by_email(db, credentials.username)
+    if not user or user.hashed_password != hashlib.sha256(credentials.password.encode()).hexdigest():
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    return crud.create_expense(db=db, expense=expense, user_id=user.id)
 
-@app.get("/")
-def read_root():
-    return {
-        "message": "Expense Tracker API is live!",
-        "supabase_url": os.getenv("SUPABASE_URL")[:20] + "..."
-    }
+@app.get("/expenses/", response_model=List[schemas.Expense])
+def read_expenses(
+    skip: int = 0, limit: int = 100,
+    credentials: HTTPBasicCredentials = Depends(security),
+    db: Session = Depends(get_db)
+):
+    user = crud.get_user_by_email(db, credentials.username)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    expenses = crud.get_expenses(db=db, user_id=user.id, skip=skip, limit=limit)
+    return expenses
 
-@app.post("/expenses/", response_model=ExpenseResponse)
-def create_expense(expense: ExpenseCreate, db: Session = Depends(get_db)):
-    db_expense = Expense(**expense.dict())
-    db.add(db_expense)
-    db.commit()
-    db.refresh(db_expense)
-    return db_expense
-
-@app.get("/expenses/", response_model=List[ExpenseResponse])
-def get_expenses(db: Session = Depends(get_db)):
-    return db.query(Expense).all()
-
-@app.delete("/expenses/{expense_id}")
-def delete_expense(expense_id: int, db: Session = Depends(get_db)):
-    expense = db.query(Expense).filter(Expense.id == expense_id).first()
-    if not expense:
-        raise HTTPException(status_code=404, detail="Expense not found")
-    db.delete(expense)
-    db.commit()
-    return {"message": "Expense deleted successfully"}
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
