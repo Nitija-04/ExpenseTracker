@@ -72,8 +72,9 @@ Full schema: models.sql | Pydantic: backend/schemas/schemas.py
 | DELETE | /expenses/{id} | Delete expense     | Yes  |
 
 🧪 Testing
-    pip install pytest httpx
-    pytest backend/tests/  # Add tests folder when ready
+
+pip install pytest httpx
+pytest backend/tests/  # Add tests folder when ready
 
 📚 Key Files
 | File                | Purpose                      |
@@ -87,22 +88,22 @@ Full schema: models.sql | Pydantic: backend/schemas/schemas.py
 
 ☁️ Deployment
 Recommended: Render, Railway, Fly.io
-    1. Push to GitHub
-    2. Connect platform
-    3. Add env vars: DATABASE_URL, SECRET_KEY
-    4. Deploy!
+1. Push to GitHub
+2. Connect platform
+3. Add env vars: DATABASE_URL, SECRET_KEY
+4. Deploy!
 
 Dockerfile:
-    FROM python:3.11-slim
-    WORKDIR /app
-    COPY requirements.txt .
-    RUN pip install -r requirements.txt
-    COPY . .
-    CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 🤝 Contributing
 Fork repository
-
     git checkout -b feature/amazing-feature
     git commit -m "Add amazing feature"
     Push & submit PR
