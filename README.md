@@ -1,35 +1,17 @@
 📁 Project Structure
-EXPENSETRACKER/
-├── backend/
-│   ├── __init__.py
-│   ├── crud/
-│   │   ├── __init__.py
-│   │   └── crud.py
-│   ├── data/
-│   │   ├── __init__.py
-│   │   └── database.py
-│   ├── main.py
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── models.py
-│   └── schemas/
-│       ├── __init__.py
-│       └── schemas.py
-├── .env
-├── env.py
-├── cruds.py
-├── database.py
-├── main.py
-├── models.sql
-├── requirements.txt
-├── schema.sql
-└── .gitignore
+| Layer     | Files            | Purpose             |
+| --------- | ---------------- | ------------------- |
+| API       | backend/main.py  | FastAPI routes      |
+| Data      | models/, data/   | ORM + DB connection |
+| Logic     | crud/            | CRUD operations     |
+| Contracts | schemas/         | Pydantic validation |
+| Infra     | models.sql, .env | Schema + config     |
 
 ✨ Features
-✅ User registration & JWT login
-✅ Full CRUD for user expenses
-✅ Supabase PostgreSQL database
-✅ Clean FastAPI + Pydantic structure
+    ✅ User registration & JWT login
+    ✅ Full CRUD for user expenses
+    ✅ Supabase PostgreSQL database
+    ✅ Clean FastAPI + Pydantic structure
 
 🛠️ Tech Stack
 | Category   | Technology            |
