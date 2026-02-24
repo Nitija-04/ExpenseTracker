@@ -8,10 +8,10 @@
 | Infra     | models.sql, .env | Schema + config     |
 
 ✨ Features
-    1. User registration & JWT login
-    2. Full CRUD for user expenses
-    3. Supabase PostgreSQL database
-    4. Clean FastAPI + Pydantic structure
+1. User registration & JWT login
+2. Full CRUD for user expenses
+3. Supabase PostgreSQL database
+4. Clean FastAPI + Pydantic structure
 
 🛠️ Tech Stack
 | Category   | Technology            |
